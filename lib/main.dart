@@ -1,6 +1,12 @@
 import 'package:flutter/cupertino.dart';
 import 'vista/login.dart';
 
+
+const Color lujavRed = CupertinoDynamicColor.withBrightness(
+  color: Color(0xFFD32F2F),
+  darkColor: Color(0xFFFF5252),
+);
+
 void main() {
   runApp(const MainApp());
 }

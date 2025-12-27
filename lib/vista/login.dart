@@ -1,6 +1,10 @@
 import 'package:flutter/cupertino.dart';
+import 'recuperar_password.dart';
 
-const Color lujavRed = Color(0xFFD32F2F);
+const Color lujavRed = CupertinoDynamicColor.withBrightness(
+  color: Color(0xFFD32F2F),
+  darkColor: Color(0xFFFF5252),
+);
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -15,6 +19,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final bool isDarkMode = MediaQuery.of(context).platformBrightness == Brightness.dark;
     return CupertinoPageScaffold(
       navigationBar: const CupertinoNavigationBar(
         middle: Text('Transportes Lujav'),
@@ -29,16 +34,19 @@ class _LoginScreenState extends State<LoginScreen> {
               children: [
                 const Icon(CupertinoIcons.bus, size: 80, color: lujavRed),
                 const SizedBox(height: 20),
-                const Text(
+                
+                Text(
                   'Bienvenido',
                   style: TextStyle(
                     fontSize: 28,
                     fontWeight: FontWeight.bold,
-                    color: CupertinoColors.black,
+                   color: isDarkMode ? CupertinoColors.white : CupertinoColors.black,
                     decoration: TextDecoration.none,
                   ),
                 ),
                 const SizedBox(height: 40),
+
+                
                 CupertinoTextField(
                   controller: _userController,
                   placeholder: 'Usuario o Correo',
@@ -48,9 +56,8 @@ class _LoginScreenState extends State<LoginScreen> {
                     child: Icon(CupertinoIcons.person_solid, color: CupertinoColors.systemGrey),
                   ),
                   decoration: BoxDecoration(
-                    color: CupertinoColors.white,
+                    color: CupertinoColors.secondarySystemGroupedBackground,
                     borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: CupertinoColors.systemGrey4),
                   ),
                 ),
                 const SizedBox(height: 16),
@@ -64,12 +71,12 @@ class _LoginScreenState extends State<LoginScreen> {
                     child: Icon(CupertinoIcons.lock_fill, color: CupertinoColors.systemGrey),
                   ),
                   decoration: BoxDecoration(
-                    color: CupertinoColors.white,
+                    color: CupertinoColors.secondarySystemGroupedBackground,
                     borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: CupertinoColors.systemGrey4),
                   ),
                 ),
                 const SizedBox(height: 30),
+
                 SizedBox(
                   width: double.infinity,
                   child: CupertinoButton.filled(
@@ -80,8 +87,14 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                 ),
                 const SizedBox(height: 20),
+
                 CupertinoButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    Navigator.push(
+                    context,
+                    CupertinoPageRoute(builder: (context) => const RecuperarPasswordScreen()),
+                  );
+                  },
                   child: const Text(
                     '¿Olvidaste tu contraseña?',
                     style: TextStyle(color: CupertinoColors.systemGrey),
