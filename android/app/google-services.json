@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "1071723812052",
+    "firebase_url": "https://plataforma-5ef7d-default-rtdb.firebaseio.com",
+    "project_id": "plataforma-5ef7d",
+    "storage_bucket": "plataforma-5ef7d.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1071723812052:android:612b641c7c7b74ddc65741",
+        "android_client_info": {
+          "package_name": "com.example.lujav"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1071723812052-fsvfr24dha10r49n0t8noci9dtf45n55.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCcu9Gojmy_ysap2pVFl83IDc81LOpY3Ak"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1071723812052-fsvfr24dha10r49n0t8noci9dtf45n55.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

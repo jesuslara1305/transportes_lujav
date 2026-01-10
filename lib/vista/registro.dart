@@ -1,63 +1,36 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:lujav/vista/inicio.dart';
-import 'recuperar_password.dart';
-import 'registro.dart';
 import '../control/Access.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+
 
 const Color lujavRed = CupertinoDynamicColor.withBrightness(
   color: Color(0xFFD32F2F),
   darkColor: Color(0xFFFF5252),
 );
 
-class LoginScreen extends StatefulWidget {
-  const LoginScreen({super.key});
+class RegistroScreen extends StatefulWidget {
+  const RegistroScreen({super.key});
 
   @override
-  State<LoginScreen> createState() => _LoginScreenState();
+  State<RegistroScreen> createState() => _RegistroScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen> {
-  final TextEditingController _userController = TextEditingController();
+class _RegistroScreenState extends State<RegistroScreen> {
+  
+  final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passController = TextEditingController();
   final Access _authController = Access();
+  bool valido = true;
   
   bool _obscureText = true;
-  bool _rememberMe = false;
-  final _storage = const FlutterSecureStorage();
   bool _isLoading = false;
 
-  @override
-  void initState() {
-    super.initState();
-    _cargarCredenciales(); 
-  }
-
-  Future<void> _cargarCredenciales() async {
-    String? email = await _storage.read(key: 'key_email');
-    String? password = await _storage.read(key: 'key_pass');
-    if (email != null && password != null) {
-      setState(() {
-        _userController.text = email;
-        _passController.text = password;
-        _rememberMe = true;
-      });
+  void _handleRegistro() async {
+    if(_nameController.text.isEmpty) {
+      _mostrarAlerta("Debes llenar el campo de nombre");
+      return;
     }
-  }
-
-  Future<void> _guardarUOlvidar() async {
-    if (_rememberMe) {
-      await _storage.write(key: 'key_email', value: _userController.text);
-      await _storage.write(key: 'key_pass', value: _passController.text);
-    } else {
-      await _storage.delete(key: 'key_email');
-      await _storage.delete(key: 'key_pass');
-    }
-  }
-
-  void _handleLogin() async {
-    if(_userController.text.isEmpty) {
+    if(_emailController.text.isEmpty) {
       _mostrarAlerta("Debes llenar el campo de correo electrónico");
       return;
     }
@@ -65,28 +38,23 @@ class _LoginScreenState extends State<LoginScreen> {
       _mostrarAlerta("Debes llenar el campo de contraseña");
       return;
     }
-  await _guardarUOlvidar();
-    setState(() => _isLoading = true);
 
-    String? error = await _authController.iniciarSesion(
-      _userController.text, 
-      _passController.text
+    setState(() => _isLoading = true);
+    String? error = await _authController.registrarUsuario(
+      email: _emailController.text,
+      password: _passController.text,
+      nombre: _nameController.text,
     );
 
     setState(() => _isLoading = false);
 
     if (error == null) {
-      final user = FirebaseAuth.instance.currentUser;
-      String nombreEnviar = user?.displayName ?? user?.email ?? "Usuario";
-
-      if (mounted) {
-        Navigator.pushAndRemoveUntil(
-          context,
-          CupertinoPageRoute(
-            builder: (context) => Inicio(nombreUsuario: nombreEnviar),
-          ),
-          (Route<dynamic> route) => false,
-        );
+      if(mounted) {
+        valido = true;
+        _mostrarAlerta("La cuenta se ha creado, revisa tu bandeja de entrada o spam para verificar tus datos de inicio de sesión");
+        _nameController.clear();
+        _emailController.clear();
+        _passController.clear();
       }
     } else {
       _mostrarAlerta(error);
@@ -97,17 +65,15 @@ class _LoginScreenState extends State<LoginScreen> {
     showCupertinoDialog(
       context: context,
       builder: (ctx) => CupertinoAlertDialog(
-        title: Text("Error"),
+        title: Text(valido ? "Éxito" : "Error"),
         content: Text(mensaje),
         actions: [CupertinoDialogAction(child: const Text("OK"), onPressed: () => Navigator.pop(ctx))]
       ),
     );
-
   }
 
   @override
   Widget build(BuildContext context) {
-    
     final bool isDarkMode = MediaQuery.of(context).platformBrightness == Brightness.dark;
     final Color textColor = isDarkMode ? CupertinoColors.white : CupertinoColors.black;
     final Color secondaryTextColor = isDarkMode ? CupertinoColors.systemGrey4 : CupertinoColors.systemGrey;
@@ -124,9 +90,6 @@ class _LoginScreenState extends State<LoginScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                
-                
-                
                 const Icon(CupertinoIcons.bus, size: 60, color: lujavRed),
                 const SizedBox(height: 10),
                 Text(
@@ -134,28 +97,27 @@ class _LoginScreenState extends State<LoginScreen> {
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: 28,
-                    fontWeight: FontWeight.w900, 
+                    fontWeight: FontWeight.w900,
                     color: lujavRed,
                     decoration: TextDecoration.none,
                     letterSpacing: -0.5,
                   ),
                 ),
                 const SizedBox(height: 12),
-                
                 Text(
-                  'Transformamos la logística en eficiencia. Accede a tu panel de control para gestionar rutas, cotizaciones y servicios de transporte.',
+                  'Transformamos la logística en eficiencia. Regístrate para comenzar a gestionar tus rutas.',
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: 14,
                     color: secondaryTextColor,
-                    height: 1.4, 
+                    height: 1.4,
                     decoration: TextDecoration.none,
                   ),
                 ),
                 
                 const SizedBox(height: 40),
                 Text(
-                  'Bienvenido de nuevo',
+                  'Crear cuenta',
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: 22,
@@ -166,7 +128,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
                 const SizedBox(height: 5),
                 Text(
-                  'Ingresa tus credenciales para acceder',
+                  'Ingresa tus datos para registrarte',
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: 14,
@@ -175,12 +137,28 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                 ),
                 const SizedBox(height: 30),
+                _buildLabel('Nombre Completo', textColor),
+                CupertinoTextField(
+                  controller: _nameController,
+                  placeholder: 'Ej. Juan Pérez',
+                  padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+                  prefix: Padding(
+                    padding: const EdgeInsets.only(left: 12),
+                    child: Icon(CupertinoIcons.person, color: secondaryTextColor, size: 20),
+                  ),
+                  decoration: BoxDecoration(
+                    color: inputBgColor,
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: CupertinoColors.systemGrey4),
+                  ),
+                ),
+                const SizedBox(height: 16),
                 _buildLabel('Correo Electrónico', textColor),
                 CupertinoTextField(
-                  controller: _userController,
+                  controller: _emailController,
                   placeholder: 'ejemplo@transporteslujav.com',
+                  keyboardType: TextInputType.emailAddress,
                   padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
-                  
                   prefix: Padding(
                     padding: const EdgeInsets.only(left: 12),
                     child: Icon(CupertinoIcons.mail, color: secondaryTextColor, size: 20),
@@ -198,12 +176,10 @@ class _LoginScreenState extends State<LoginScreen> {
                   placeholder: '••••••••',
                   obscureText: _obscureText,
                   padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
-                  
                   prefix: Padding(
                     padding: const EdgeInsets.only(left: 12),
                     child: Icon(CupertinoIcons.lock, color: secondaryTextColor, size: 20),
                   ),
-                  
                   suffix: CupertinoButton(
                     padding: const EdgeInsets.only(right: 12),
                     onPressed: () => setState(() => _obscureText = !_obscureText),
@@ -219,66 +195,18 @@ class _LoginScreenState extends State<LoginScreen> {
                     border: Border.all(color: CupertinoColors.systemGrey4),
                   ),
                 ),
-                
-                const SizedBox(height: 16),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    
-                    GestureDetector(
-                      onTap: () => setState(() => _rememberMe = !_rememberMe),
-                      child: Row(
-                        children: [
-                          Icon(
-                            
-                            _rememberMe ? CupertinoIcons.checkmark_square_fill : CupertinoIcons.square,
-                            color: _rememberMe ? lujavRed : CupertinoColors.systemGrey,
-                            size: 22,
-                          ),
-                          const SizedBox(width: 8),
-                          Text(
-                            'Recordarme',
-                            style: TextStyle(fontSize: 13, color: secondaryTextColor),
-                          ),
-                        ],
-                      ),
-                    ),
-                    
-                    
-                    CupertinoButton(
-                      padding: EdgeInsets.zero,
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          CupertinoPageRoute(builder: (context) => const RecuperarPasswordScreen()),
-                        );
-                      }, minimumSize: Size(0, 0),
-                      child: Text(
-                        '¿Olvidaste tu contraseña?',
-                        style: TextStyle(
-                          fontSize: 13, 
-                          fontWeight: FontWeight.w600,
-                          color: lujavRed 
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-
                 const SizedBox(height: 24),
-
-                
                 SizedBox(
                   width: double.infinity,
                   child: CupertinoButton(
                     padding: const EdgeInsets.symmetric(vertical: 16),
                     color: mainBtnColor,
                     borderRadius: BorderRadius.circular(8),
-                    onPressed: _isLoading ? null : _handleLogin,
+                    onPressed: _isLoading ? null : _handleRegistro,
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Text('Iniciar Sesión', 
+                        Text('Registrarse', 
                           style: TextStyle(
                             fontWeight: FontWeight.bold, 
                             color: mainBtnTextColor
@@ -315,35 +243,66 @@ class _LoginScreenState extends State<LoginScreen> {
                   padding: const EdgeInsets.symmetric(vertical: 12),
                   color: inputBgColor,
                   borderRadius: BorderRadius.circular(8),
-                 onPressed: () async {
-                  Access _authController = Access();
-                  String? error = await _authController.registroGoogle();
+                  onPressed: () async {
+                    Access _authController = Access();
+                    String? error = await _authController.registroGoogle(esRegistro: true);
 
-                  if (error == null) {
-                    final user = FirebaseAuth.instance.currentUser;
-                    String nombreEnviar = user?.displayName ?? user?.email ?? "Usuario";
-
+                    if (error == null) {
+                      if (mounted) {
+                        await showCupertinoDialog(
+                          context: context,
+                          barrierDismissible: false,
+                          builder: (BuildContext context) {
+                            return CupertinoAlertDialog(
+                              title: const Text("¡Bienvenido!"),
+                              content: const Text("Tu cuenta con Google se creó exitosamente"),
+                              actions: [
+                                CupertinoDialogAction(
+                                  isDefaultAction: true,
+                                  child: const Text("Aceptar"),
+                                  onPressed: () {
+                                    Navigator.pop(context);
+                                    Navigator.pop(context);
+                                  },
+                                ),
+                              ],
+                            );
+                          },
+                        );
+                      }
+                    } 
+                    else if (error == "YA_EXISTE") {
                     if (mounted) {
-                      Navigator.pushAndRemoveUntil(
-                        context,
-                        CupertinoPageRoute(
-                          builder: (context) => Inicio(nombreUsuario: nombreEnviar),
+                      showCupertinoDialog(
+                        context: context,
+                        builder: (context) => CupertinoAlertDialog(
+                          title: const Text("Cuenta existente"),
+                          content: const Text("Este correo de Google ya está registrado en el sistema. Por favor, inicia sesión."),
+                          actions: [
+                            CupertinoDialogAction(
+                              child: const Text("Aceptar"),
+                              onPressed: () {
+                                    Navigator.pop(context);
+                                    Navigator.pop(context);
+                                  },
+                            )
+                          ],
                         ),
-                        (route) => false, 
                       );
                     }
-                  } else {
-                    if (error != "Cancelado por el usuario") {
-                      _mostrarAlerta(error);
-                    }
                   }
-                },
+                    else {
+                      if (error != "Cancelado por el usuario") {
+                        _mostrarAlerta(error);
+                      }
+                    }
+                  },
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Image.asset(
                         'multimedia/google.png', 
-                        height: 24,
+                        height: 24, 
                         width: 24,
                       ),
                       const SizedBox(width: 8),
@@ -361,17 +320,13 @@ class _LoginScreenState extends State<LoginScreen> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Text('¿No tienes una cuenta? ', style: TextStyle(color: secondaryTextColor, fontSize: 14)),
+                    Text('¿Ya tienes una cuenta? ', style: TextStyle(color: secondaryTextColor, fontSize: 14)),
                     CupertinoButton(
                       padding: EdgeInsets.zero,
-                      onPressed: () {
-                      Navigator.push(
-                        context,
-                        CupertinoPageRoute(builder: (context) => const RegistroScreen()),
-                      );
-                    }, minimumSize: Size(0, 0),
+                      
+                      onPressed: () => Navigator.pop(context), minimumSize: Size(0, 0),
                       child: Text(
-                        'Regístrate ahora',
+                        'Inicia sesión',
                         style: TextStyle(
                           color: textColor,
                           fontWeight: FontWeight.bold,

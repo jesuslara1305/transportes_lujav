@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import '../control/Access.dart';
 
 
 const Color lujavRed = CupertinoDynamicColor.withBrightness(
@@ -15,6 +16,24 @@ class RecuperarPasswordScreen extends StatefulWidget {
 
 class _RecuperarPasswordScreenState extends State<RecuperarPasswordScreen> {
   final TextEditingController _emailController = TextEditingController();
+  final Access _authController = Access();
+
+  void _enviarCorreo() async {
+    if (_emailController.text.isEmpty) return;
+    
+    await _authController.resetPassword(_emailController.text);
+    
+    if(mounted) {
+       showCupertinoDialog(
+         context: context, 
+         builder: (ctx) => CupertinoAlertDialog(
+           title: const Text("Correo enviado"),
+           content: const Text("Revisa tu bandeja de entrada."),
+           actions: [CupertinoDialogAction(child: const Text("OK"), onPressed: () => Navigator.pop(ctx))]
+         )
+       );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
