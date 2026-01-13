@@ -50,7 +50,7 @@ class _RegistroScreenState extends State<RegistroScreen> {
     if (error == null) {
       if(mounted) {
         valido = true;
-        _mostrarAlerta("La cuenta se ha creado, revisa tu bandeja de entrada o spam para verificar tus datos de inicio de sesión");
+        _mostrarAlerta("¡La cuenta se ha creado exitosamente!");
         _nameController.clear();
         _emailController.clear();
         _passController.clear();
