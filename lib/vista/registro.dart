@@ -20,8 +20,7 @@ class _RegistroScreenState extends State<RegistroScreen> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passController = TextEditingController();
   final Access _authController = Access();
-  bool valido = true;
-  
+  bool valido = false;
   bool _obscureText = true;
   bool _isLoading = false;
 

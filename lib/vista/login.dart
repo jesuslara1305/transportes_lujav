@@ -124,9 +124,6 @@ class _LoginScreenState extends State<LoginScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                
-                
-                
                 const Icon(CupertinoIcons.bus, size: 60, color: lujavRed),
                 const SizedBox(height: 10),
                 Text(
